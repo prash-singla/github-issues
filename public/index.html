@@ -1,0 +1,78 @@
+<html>
+<head>
+	
+</head>
+<title></title>
+<body>
+	<div id="repoUrlForm">
+		<label>Enter Repo Url</label>
+		<input type="text" name="repoUrl"/>
+		<button type="submit">List</button>
+	</div>
+	<table>
+		<thead></thead>
+		<tbody>
+		</tbody>
+	</table>
+</body>
+</html>
+<script   src="https://code.jquery.com/jquery-3.1.0.js"   integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="   crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+	$(function () {
+
+		/*
+		 * Create a tr element
+		 */
+		function createRow(title, value) {
+			var tr = $("<tr>");
+				tr.append(createCell(title));
+				tr.append(createCell(value));
+			return tr;
+		}
+
+		/*
+		 * Create a td element
+		 */
+		function createCell(value) {
+			var td = $("<td>");
+				td.text(value);
+				
+			return td;
+		}
+
+
+		/*
+		 * Set Listener for click event on list button.
+		 * Get the url from input.
+		 * Parse url to get owner and repo detail.
+		 * Hit github api to get issues.
+		 */
+		$("#repoUrlForm button[type='submit']").on('click', function () {
+			$("body table tbody").empty();
+			var repoUrl = $("#repoUrlForm input").val(),
+				temp = repoUrl.split("github.com/");
+
+			temp = temp[1].split("/");
+
+      $.get("/api/issues?repoUrl="+repoUrl, function(data) {
+        
+        console.log("data is " , data);
+        show(data.total, data.openedInLast24Hrs, data.openedAfter7DaysAgo,
+          data.openedBefore7DaysAgo);
+      });
+
+
+			function show(total, openedInLast24Hrs, openedAfter7DaysAgo,
+        openedBefore7DaysAgo) {
+				$("body table tbody").append(createRow("Total number of open issues ", total));
+				$("body table tbody").append(createRow("Number of open issues that were opened in the last 24 hours ", openedInLast24Hrs));
+				$("body table tbody").append(createRow("Number of open issues that were opened more than 24 hours ago but less than 7 days ago ", openedAfter7DaysAgo));
+				$("body table tbody").append(createRow("Number of open issues that were opened more than 7 days ago ", openedBefore7DaysAgo));
+			}
+		});
+
+			
+	});
+	
+</script>
